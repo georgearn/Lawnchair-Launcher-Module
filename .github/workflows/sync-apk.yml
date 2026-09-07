@@ -1,0 +1,57 @@
+name: Sync Lawnchair APK
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch latest release info
+        id: release
+        run: |
+          data=$(curl -sS https://api.github.com/repos/georgearn/Lawnchair-Modded/releases/latest)
+          url=$(echo "$data" | jq -r '.assets[] | select(.name | endswith(".apk")) | .browser_download_url' | head -n1)
+          tag=$(echo "$data" | jq -r '.tag_name')
+          if [ -z "$url" ] || [ "$url" = "null" ]; then
+            echo "No APK asset found in latest release"
+            exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Download latest APK
+        run: curl -sSL -o new-dev.apk "${{ steps.release.outputs.url }}"
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if cmp -s new-dev.apk system/priv-app/dev/dev.apk; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update module files
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          mv new-dev.apk system/priv-app/dev/dev.apk
+          current=$(grep -oP '(?<=^versionCode=)\d+' module.prop)
+          next=$((current + 1))
+          sed -i "s/^versionCode=.*/versionCode=$next/" module.prop
+          sed -i "s/^version=.*/version=${{ steps.release.outputs.tag }}/" module.prop
+
+      - name: Commit and push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add system/priv-app/dev/dev.apk module.prop
+          git commit -m "Sync dev.apk from Lawnchair-Modded (${{ steps.release.outputs.tag }})"
+          git push
