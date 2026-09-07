@@ -23,11 +23,6 @@
 - **Quickswitch Integration**: Replaces Recents Provider without extra configuration.
 - Automatic updates via Magisk/KSU.
 
----
-
-## ⚠️ Important: Before Flashing
-- **Magisk Users:** Ensure "Enforce DenyList" is turned off.
-- **KSU Users:** Disable the "Unmount module by default" toggle.
 
 ---
 
@@ -58,11 +53,3 @@ To manually update or customize the module:
 ## 🛠 Optional: Removing Lawnicons
 
 If you do not want Lawnicons, simply delete the `lawnicons` folder from `System/priv-app` within the module zip before flashing.
-
----
-
-## 💖 Special Thanks to
-
-| Lawnchair Team | Amr Gamal ❥ | Kartrexofficial | Goooler | Mr Sluffy | Eren |
-|:--------------:|:-----------:|:---------------:|:-------:|:---------:|:----:|
-| [<img src="https://avatars.githubusercontent.com/u/34144436?s=200&v=4" width=115>](https://github.com/LawnchairLauncher)<br><sub>Lawnchair</sub> | [<img src="https://avatar.fuplink.net/avatar/dircover/6326959?verc=0823110339" width=115>](https://t.me/AMRGAMAL_STORE)<br><sub>Special Icons</sub> | [<img src="https://avatars.githubusercontent.com/u/172979966?v=4" width=115>](https://github.com/Kartrexofficial)<br><sub>&nbsp;</sub> | [<img src="https://avatars.githubusercontent.com/u/10363352?v=4" width=115>](https://github.com/Goooler)<br><sub>Lawnchair Fork</sub> | [<img src="https://avatars.githubusercontent.com/u/36076410?v=4" width=115>](https://github.com/MrSluffy)<br><sub>Module Script</sub> | [<img src="https://avatars.githubusercontent.com/u/101087324?v=4" width=115>](https://github.com/LinuxGuy312)<br><sub>Helper</sub> |
