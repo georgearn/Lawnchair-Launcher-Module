@@ -15,7 +15,7 @@ jobs:
         id: release
         run: |
           data=$(curl -sS https://api.github.com/repos/georgearn/Lawnchair-Modded/releases/latest)
-          url=$(echo "$data" | jq -r '.assets[] | select(.name | endswith(".apk")) | .browser_download_url' | head -n1)
+          url=$(echo "$data" | jq -r '[.assets[] | select(.name | endswith(".apk"))] | sort_by(.created_at) | last | .browser_download_url')
           tag=$(echo "$data" | jq -r '.tag_name')
           if [ -z "$url" ] || [ "$url" = "null" ]; then
             echo "No APK asset found in latest release"
