@@ -2,25 +2,22 @@ name: Release Lawnchair module
 
 on:
   workflow_dispatch:
+  push:
     branches:
-      - main 
+      - fiio-14
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      
-    - name: Remove .github and .git folders
-      run: |
-        find . -type d -name .github -exec rm -rf {} +
-        rm -rf .git
-    
-    - name: Upload files
-      uses: actions/upload-artifact@v4
-      with:
-        name: Lawnchairmodule
-        path: ./
-        if-no-files-found: error
+      - uses: actions/checkout@v4
+
+      - name: Build module zip
+        run: zip -r9 Lawnchairmodule.zip . -x '.git/*' '.github/*'
+
+      - name: Upload module
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lawnchairmodule
+          path: Lawnchairmodule.zip
+          if-no-files-found: error
