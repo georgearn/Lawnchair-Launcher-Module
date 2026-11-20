@@ -11,18 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch latest release info
+      - name: Fetch fiio-14-dev release asset
         id: release
         run: |
+          sha=$(curl -sS https://api.github.com/repos/georgearn/Lawnchair-Modded/commits/fiio-14-dev | jq -r '.sha[0:7]')
+          if [ -z "$sha" ] || [ "$sha" = "null" ]; then
+            echo "Could not resolve fiio-14-dev HEAD commit"
+            exit 1
+          fi
           data=$(curl -sS https://api.github.com/repos/georgearn/Lawnchair-Modded/releases/latest)
-          url=$(echo "$data" | jq -r '[.assets[] | select(.name | endswith(".apk"))] | sort_by(.created_at) | last | .browser_download_url')
-          tag=$(echo "$data" | jq -r '.tag_name')
+          url=$(echo "$data" | jq -r --arg sha "$sha" '[.assets[] | select(.name | endswith(".apk")) | select(.name | contains($sha))] | first | .browser_download_url')
           if [ -z "$url" ] || [ "$url" = "null" ]; then
-            echo "No APK asset found in latest release"
+            echo "No release asset built from fiio-14-dev HEAD ($sha) yet"
             exit 1
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "tag=$sha" >> "$GITHUB_OUTPUT"
 
       - name: Download latest APK
         run: curl -sSL -o new-dev.apk "${{ steps.release.outputs.url }}"
@@ -51,5 +55,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add system/priv-app/dev/dev.apk module.prop
-          git commit -m "Sync dev.apk from Lawnchair-Modded (${{ steps.release.outputs.tag }})"
+          git commit -m "Sync dev.apk from Lawnchair-Modded fiio-14-dev (${{ steps.release.outputs.tag }})"
           git push
